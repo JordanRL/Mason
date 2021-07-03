@@ -4,6 +4,7 @@
 namespace Samsara\Mason;
 
 use Samsara\Mason\Tags\ExampleTag;
+use Samsara\Mason\Tags\Base\DocBlockTag;
 
 class DocBlockProcessor
 {
