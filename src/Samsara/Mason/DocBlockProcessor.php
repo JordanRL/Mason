@@ -116,10 +116,9 @@ class DocBlockProcessor
                 }
             } elseif (!$inExample) {
                 if (!empty(trim($lineContent))) {
-                    if (!empty($currContent)) {
-                        $currContent .= PHP_EOL;
-                    }
                     $currContent .= $lineContent;
+                } else {
+                    $currContent .= PHP_EOL.PHP_EOL;
                 }
             } else {
                 if (preg_match('/^[\s]*\* (.*?)$/ism', $line, $matches)) {
