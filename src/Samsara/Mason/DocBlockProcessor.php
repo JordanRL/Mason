@@ -123,7 +123,7 @@ class DocBlockProcessor
                 }
             } else {
                 if (preg_match('/^[\s]*\* (.*?)$/ism', $line, $matches)) {
-                    $currContent .= ' '.$matches[1];
+                    $currContent .= ' '.str_replace(["\r", "\n"], '', $matches[1]);
                 }
             }
             $this->pushTag($currTag, $currType, $currName, $currContent);
