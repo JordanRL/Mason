@@ -166,12 +166,35 @@ class DocBlockProcessor
     protected function varTagProcessor(string $tagInfo)
     {
 
-        preg_match('/\@([^\s]+)[\s]+([^\s]+)[\s]+([^\s]+)(?:[\s]*(.+))?$/i', $tagInfo, $parts);
+        $matched = preg_match('/\@([^\s]+)([\s]+([^\s]+)([\s]+([^\s]+)(?:[\s]*(.+))?)?)?$/i', trim($tagInfo), $parts);
 
-        $tag = strtolower($parts[1]);
-        $type = str_contains($parts[2], '$') ? $parts[3] : $parts[2];
-        $varName = str_contains($parts[2], '$') ? $parts[2] : $parts[3];
-        $desc = $parts[4] ?? '';
+        if (!$matched) {
+            throw new \LogicException('Error with RegEx on DocBlock line: '.$tagInfo);
+        }
+
+        if (count($parts) == 6) {
+            $tag = strtolower($parts[1]);
+            $type = str_contains($parts[3], '$') ? $parts[5] : $parts[3];
+            $varName = str_contains($parts[3], '$') ? $parts[3] : $parts[5];
+            $desc = '';
+        } elseif (count($parts) == 4) {
+            $tag = strtolower($parts[1]);
+            $type = str_contains($parts[3], '$') ? '' : $parts[3];
+            $varName = str_contains($parts[3], '$') ? $parts[3] : '';
+            $desc = '';
+        } elseif (count($parts) == 2) {
+            $tag = strtolower($parts[1]);
+            $type = '';
+            $varName = '';
+            $desc = '';
+        } elseif (count($parts) == 7) {
+            $tag = strtolower($parts[1]);
+            $type = str_contains($parts[3], '$') ? $parts[5] : $parts[3];
+            $varName = str_contains($parts[3], '$') ? $parts[3] : $parts[5];
+            $desc = $parts[6];
+        } else {
+            throw new \LogicException('Error with RegEx on DocBlock line: '.$tagInfo);
+        }
 
         return ['tag' => $tag, 'type' => $type, 'name' => $varName, 'desc' => $desc];
 
@@ -180,7 +203,7 @@ class DocBlockProcessor
     protected function typeTagProcessor(string $tagInfo)
     {
 
-        preg_match('/\@([^\s]+)[\s]+([^\s]+)(?:[\s]+([^$]+))?$/i', $tagInfo, $parts);
+        $matched = preg_match('/\@([^\s]+)[\s]+([^\s]+)(?:[\s]+([^$]+))?$/i', $tagInfo, $parts);
 
         $tag = $parts[1];
         $type = $parts[2];
@@ -191,12 +214,17 @@ class DocBlockProcessor
 
     protected function textTagProcessor(string $tagInfo)
     {
-        preg_match('/\@([^\s]+)(?:[\s]+([^$]+))?$/i', $tagInfo, $parts);
+        $matched = preg_match('/\@([^\s]+)(?:[\s]+([^$]+))?$/i', $tagInfo, $parts);
 
         $tag = $parts[1];
         $desc = $parts[2] ?? '';
 
         return ['tag' => $tag, 'desc' => $desc];
+    }
+
+    protected function boolTagProcessor(string $tagInfo)
+    {
+
     }
 
 }
