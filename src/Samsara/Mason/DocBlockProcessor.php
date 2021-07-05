@@ -57,7 +57,7 @@ class DocBlockProcessor
             }
 
             if (str_starts_with($lineContent, 'Example:')) {
-                $this->description = $currContent;
+                $this->description = trim($currContent);
                 $currContent = '';
                 $inExample = true;
                 $inDesc = false;
@@ -67,8 +67,8 @@ class DocBlockProcessor
 
             if (str_starts_with($lineContent, '@')) {
                 if ($inExample || $inDesc || $inSummary) {
-                    $this->summary = $inSummary ? $currContent : $this->summary;
-                    $this->description = $inDesc ? $currContent : $this->description;
+                    $this->summary = $inSummary ? trim($currContent) : $this->summary;
+                    $this->description = $inDesc ? trim($currContent) : $this->description;
                     $this->example = $inExample ? (new ExampleTag('example', $currSummary))->setExampleCode($currContent) : $this->example;
                     $inExample = false;
                     $inDesc = false;
@@ -116,13 +116,13 @@ class DocBlockProcessor
                 }
             } elseif (!$inExample) {
                 if (!empty(trim($lineContent))) {
-                    $currContent .= $lineContent;
+                    $currContent .= ' '.$lineContent;
                 } else {
                     $currContent .= PHP_EOL.PHP_EOL;
                 }
             } else {
                 if (preg_match('/^[\s]*\* (.*?)$/ism', $line, $matches)) {
-                    $currContent .= ' '.str_replace(["\r", "\n"], '', $matches[1]);
+                    $currContent .= ' '.$matches[1];
                 }
             }
             $this->pushTag($currTag, $currType, $currName, $currContent);
