@@ -50,6 +50,12 @@ class DocBlockProcessor
                 $lineContent = '';
             }
 
+            if (!empty($currContent) && $inSummary) {
+                $this->summary = $currContent;
+                $inSummary = false;
+                $currContent = '';
+            }
+
             if (str_starts_with($lineContent, 'Example:')) {
                 $this->description = $currContent;
                 $currContent = '';
@@ -120,9 +126,9 @@ class DocBlockProcessor
                     $currContent .= ' '.$matches[1];
                 }
             }
+            $this->pushTag($currTag, $currType, $currName, $currContent);
         }
 
-        $this->pushTag($currTag, $currType, $currName, $currContent);
 
     }
 
