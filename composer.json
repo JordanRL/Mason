@@ -3,7 +3,6 @@
   "type": "library",
   "description": "A PHPDoc docblock interpreter that is simple, easy to use, and provides Attribute alternatives.",
   "keywords": ["documentation", "phpdoc", "docblock", "attributes"],
-  "version": "v0.1.0",
   "funding": [
     {
       "type": "github",
