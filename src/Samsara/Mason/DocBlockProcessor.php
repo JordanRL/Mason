@@ -3,24 +3,28 @@
 
 namespace Samsara\Mason;
 
+use Samsara\Mason\Tags\AuthorTag;
+use Samsara\Mason\Tags\DeprecatedTag;
 use Samsara\Mason\Tags\ExampleTag;
 use Samsara\Mason\Tags\Base\DocBlockTag;
+use Samsara\Mason\Tags\GenericTag;
+use Samsara\Mason\Tags\InternalTag;
+use Samsara\Mason\Tags\LicenseTag;
+use Samsara\Mason\Tags\PackageTag;
+use Samsara\Mason\Tags\ParamTag;
+use Samsara\Mason\Tags\ReturnTag;
+use Samsara\Mason\Tags\SeeTag;
+use Samsara\Mason\Tags\SinceTag;
+use Samsara\Mason\Tags\SubPackageTag;
+use Samsara\Mason\Tags\ThrowsTag;
 
 class DocBlockProcessor
 {
 
     public string $summary = '';
     public string $description = '';
-    public ?ExampleTag $example = null;
-    /** @var DocBlockTag[]  */
-    public array $params = [];
-    /** @var DocBlockTag[]  */
-    public array $authors = [];
-    /** @var DocBlockTag[]  */
-    public array $throws = [];
-    public ?DocBlockTag $return = null;
-    /** @var DocBlockTag[]  */
-    public array $others = [];
+    /** @var DocBlockTag[][] */
+    protected array $tags = [];
 
     public function __construct(string $docBlock, bool $useSummary = true)
     {
@@ -69,7 +73,12 @@ class DocBlockProcessor
                 if ($inExample || $inDesc || $inSummary) {
                     $this->summary = $inSummary ? trim($currContent) : $this->summary;
                     $this->description = $inDesc ? trim($currContent) : $this->description;
-                    $this->example = $inExample ? (new ExampleTag('example', $currSummary))->setExampleCode($currContent) : $this->example;
+                    if ($inExample) {
+                        $this->pushTag('example', '', '', $currSummary);
+                        /** @var ExampleTag $example */
+                        $example = $this->getLastTag('example');
+                        $example->setExampleCode($currContent);
+                    }
                     $inExample = false;
                     $inDesc = false;
                     $inSummary = false;
@@ -103,6 +112,9 @@ class DocBlockProcessor
                         $currContent = $extracted['desc'];
                         break;
 
+                    case 'ignore':
+
+
                     case 'author':
                     default:
                         $extracted = $this->textTagProcessor($lineContent);
@@ -121,14 +133,60 @@ class DocBlockProcessor
                     $currContent .= PHP_EOL.PHP_EOL;
                 }
             } else {
+                if (!empty($currContent)) {
+                    $currContent .= PHP_EOL;
+                }
                 if (preg_match('/^[\s]*\* (.*?)$/ism', $line, $matches)) {
-                    $currContent .= ' '.$matches[1];
+                    $currContent .= $matches[1];
                 }
             }
             $this->pushTag($currTag, $currType, $currName, $currContent);
         }
 
 
+    }
+
+    public function hasTag(string $tag): bool
+    {
+        return array_key_exists($tag, $this->tags);
+    }
+
+    public function hasTagIndex(string $tag, int $index): bool
+    {
+        return array_key_exists($tag, $this->tags) && array_key_exists($index, $this->tags[$tag]);
+    }
+
+    public function getTagCount(string $tag): int
+    {
+        return count($this->tags[$tag]);
+    }
+
+    public function getTag(string $tag): array|null
+    {
+        if ($this->hasTag($tag)) {
+            return $this->tags[$tag];
+        }
+
+        return null;
+    }
+
+    public function getLastTag(string $tag): DocBlockTag|null
+    {
+        if ($this->hasTag($tag)) {
+            $lastKey = array_key_last($this->tags[$tag]);
+            return $this->getTag($tag)[$lastKey];
+        }
+
+        return null;
+    }
+
+    public function getTagIndex(string $tag, $index = 0): DocBlockTag|null
+    {
+        if ($this->hasTagIndex($tag, $index)) {
+            return $this->getTag($tag)[$index];
+        }
+
+        return null;
     }
 
     protected function pushTag(string $tag, string|array $type, string $name, string $desc)
@@ -142,24 +200,28 @@ class DocBlockProcessor
             return;
         }
 
-        $data = new DocBlockTag(
-            $tag,
+        $data = [
             $desc,
             $type,
             $name
-        );
+        ];
+        $tagObject = match ($tag) {
+            'param' => new ParamTag(...$data),
+            'throws' => new ThrowsTag(...$data),
+            'author' => new AuthorTag(...$data),
+            'deprecated' => new DeprecatedTag(...$data),
+            'example' => new ExampleTag(...$data),
+            'internal' => new InternalTag(...$data),
+            'license' => new LicenseTag(...$data),
+            'package' => new PackageTag(...$data),
+            'subpackage', 'sub-package' => new SubPackageTag(...$data),
+            'return' => new ReturnTag(...$data),
+            'see', 'seealso', 'see-also' => new SeeTag(...$data),
+            'since' => new SinceTag(...$data),
+            default => new GenericTag($tag, ...$data)
+        };
 
-        if ($tag == "param") {
-            $this->params[$name] = $data;
-        } elseif ($tag == "throws") {
-            $this->throws[] = $data;
-        } elseif ($tag == "authors") {
-            $this->authors[] = $data;
-        } elseif ($tag == "return") {
-            $this->return = $data;
-        } else {
-            $this->others[$tag] = $data;
-        }
+        $this->tags[$tag][] = $tagObject;
 
     }
 

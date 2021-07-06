@@ -6,7 +6,7 @@ namespace Samsara\Mason\Tags;
 use JetBrains\PhpStorm\Pure;
 use Samsara\Mason\Tags\Base\DocBlockTag;
 
-class ParamTag extends DocBlockTag
+class DeprecatedTag extends DocBlockTag
 {
 
     #[Pure]
