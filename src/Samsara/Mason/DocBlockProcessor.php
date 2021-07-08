@@ -140,7 +140,9 @@ class DocBlockProcessor
                     $currContent .= $matches[1];
                 }
             }
-            $this->pushTag($currTag, $currType, $currName, $currContent);
+            if ($currTag != "method") {
+                $this->pushTag($currTag, $currType, $currName, $currContent);
+            }
         }
 
 
@@ -228,7 +230,7 @@ class DocBlockProcessor
     protected function varTagProcessor(string $tagInfo)
     {
 
-        $matched = preg_match('/\@([^\s]+)([\s]+([^\s]+)([\s]+([^\s]+)(?:[\s]*(.+))?)?)?$/i', trim($tagInfo), $parts);
+        $matched = preg_match('/\@([^\s]+)([\s]+([^\s]+)([\s]+([^\s]+)(?:[\s]*(.+))?)?)?$/ism', trim($tagInfo), $parts);
 
         if (!$matched) {
             throw new \LogicException('Error with RegEx on DocBlock line: '.$tagInfo);
@@ -265,7 +267,7 @@ class DocBlockProcessor
     protected function typeTagProcessor(string $tagInfo)
     {
 
-        $matched = preg_match('/\@([^\s]+)([\s]+(([^\s]+)(?:[\s]+([^$]+))?)?)?$/i', trim($tagInfo), $parts);
+        $matched = preg_match('/\@([^\s]+)([\s]+(([^\s]+)(?:[\s]+([^$]+))?)?)?$/ism', trim($tagInfo), $parts);
 
         $tag = $parts[1];
         $type = $parts[4] ?? '';
@@ -276,7 +278,7 @@ class DocBlockProcessor
 
     protected function textTagProcessor(string $tagInfo)
     {
-        $matched = preg_match('/\@([^\s]+)(?:([\s]+([^$]+)?))?$/i', trim($tagInfo), $parts);
+        $matched = preg_match('/\@([^\s]+)(?:([\s]+([^$]+)?))?$/ism', trim($tagInfo), $parts);
 
         $tag = $parts[1];
         $desc = $parts[2] ?? '';
