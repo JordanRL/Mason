@@ -269,7 +269,7 @@ class DocBlockProcessor
 
         $matched = preg_match('/\@([^\s]+)([\s]+(([^\s]+)(?:[\s]+(.+))?)?)?$/ism', trim($tagInfo), $parts);
 
-        $tag = $parts[1];
+        $tag = $parts[1] ?? '';
         $type = $parts[4] ?? '';
         $desc = $parts[3] ?? '';
 
@@ -280,7 +280,7 @@ class DocBlockProcessor
     {
         $matched = preg_match('/\@([^\s]+)(?:([\s]+(.+)?))?$/ism', trim($tagInfo), $parts);
 
-        $tag = $parts[1];
+        $tag = $parts[1] ?? '';
         $desc = $parts[2] ?? '';
 
         return ['tag' => $tag, 'desc' => $desc];
