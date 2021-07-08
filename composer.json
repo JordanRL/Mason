@@ -23,8 +23,7 @@
   ],
   "license": "GPL-3.0-only",
   "require": {
-    "samsara/common": "^1",
-    "jetbrains/phpstorm-attributes": "^1.0"
+    "samsara/common": "^1"
   },
   "require-dev": {
   },
