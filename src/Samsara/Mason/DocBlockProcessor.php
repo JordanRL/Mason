@@ -267,7 +267,7 @@ class DocBlockProcessor
     protected function typeTagProcessor(string $tagInfo)
     {
 
-        $matched = preg_match('/\@([^\s]+)([\s]+(([^\s]+)(?:[\s]+([^$]+))?)?)?$/ism', trim($tagInfo), $parts);
+        $matched = preg_match('/\@([^\s]+)([\s]+(([^\s]+)(?:[\s]+(.+))?)?)?$/ism', trim($tagInfo), $parts);
 
         $tag = $parts[1];
         $type = $parts[4] ?? '';
@@ -278,7 +278,7 @@ class DocBlockProcessor
 
     protected function textTagProcessor(string $tagInfo)
     {
-        $matched = preg_match('/\@([^\s]+)(?:([\s]+([^$]+)?))?$/ism', trim($tagInfo), $parts);
+        $matched = preg_match('/\@([^\s]+)(?:([\s]+(.+)?))?$/ism', trim($tagInfo), $parts);
 
         $tag = $parts[1];
         $desc = $parts[2] ?? '';
