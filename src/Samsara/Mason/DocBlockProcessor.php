@@ -276,7 +276,7 @@ class DocBlockProcessor
 
     protected function textTagProcessor(string $tagInfo)
     {
-        $matched = preg_match('/\@([^\s]+)(?:[\s]+([^$]+))?$/i', trim($tagInfo), $parts);
+        $matched = preg_match('/\@([^\s]+)(?:([\s]+([^$]+)?))?$/i', trim($tagInfo), $parts);
 
         $tag = $parts[1];
         $desc = $parts[2] ?? '';
